@@ -1,0 +1,32 @@
+[build-system]
+requires = ["setuptools>=69.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "spreads-detector-schemas"
+version = "0.1.0"
+description = "Shared quote and spread schemas for microservices."
+readme = "README.md"
+requires-python = ">=3.13"
+license = {file = "LICENSE"}
+authors = [
+    {name = "Beliy", email = "beliypozhizni@gmail.com"},
+]
+keywords = ["schemas", "quotes", "spreads", "microservices"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+]
+dependencies = []
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["quotes*", "spreads*"]
+
+[tool.setuptools.package-data]
+quotes = ["py.typed"]
+spreads = ["py.typed"]
