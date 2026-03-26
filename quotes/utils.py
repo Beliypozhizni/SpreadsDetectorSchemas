@@ -26,5 +26,22 @@ def as_int(value: Any, field_name: str) -> int:
     return int(value)
 
 
+def as_bool(value: Any, field_name: str) -> bool:
+    if isinstance(value, bool):
+        return value
+
+    if isinstance(value, (int, float)) and value in (0, 1):
+        return bool(value)
+
+    if isinstance(value, str):
+        normalized = value.strip().lower()
+        if normalized in {"true", "1", "yes", "y"}:
+            return True
+        if normalized in {"false", "0", "no", "n"}:
+            return False
+
+    raise ValueError(f"{field_name} must be boolean-like")
+
+
 def compact_json(payload: dict[str, Any]) -> str:
     return json.dumps(payload, ensure_ascii=False, separators=(",", ":"))

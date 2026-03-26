@@ -1,50 +1,47 @@
-from dataclasses import asdict, dataclass
 from decimal import Decimal
-from math import isfinite
 
-from .utils import compact_json, require_non_empty
+from pydantic import BaseModel, ConfigDict, Field, field_validator
+
+from .utils import compact_json
 
 
-@dataclass(slots=True, frozen=True)
-class Quote:
+class Quote(BaseModel):
+    model_config = ConfigDict(
+        frozen=True,
+        str_strip_whitespace=True,
+        allow_inf_nan=False,
+    )
+
     asset_id: str
     name: str
     address: str
     network: str
-    bid: float
-    ask: float
+    bid: float = Field(ge=0)
+    ask: float = Field(gt=0)
     last: float
-    ts_exchange: int
-    ts_written: int
+    withdraw_status: bool
+    deposit_status: bool
+    ts_exchange: int = Field(ge=0)
+    ts_written: int = Field(ge=0)
 
-    def __post_init__(self) -> None:
-        require_non_empty(self.asset_id, "asset_id")
-        require_non_empty(self.name, "name")
-        require_non_empty(self.address, "address")
-        require_non_empty(self.network, "network")
-        if not isfinite(self.bid):
-            raise ValueError("bid must be a finite number")
-        if not isfinite(self.ask):
-            raise ValueError("ask must be a finite number")
-        if not isfinite(self.last):
-            raise ValueError("last must be a finite number")
-        if self.ask <= 0:
-            raise ValueError("ask must be greater than zero")
-        if self.bid < 0:
-            raise ValueError("bid must be non-negative")
-        if self.ts_exchange < 0:
-            raise ValueError("ts_exchange must be non-negative")
-        if self.ts_written < 0:
-            raise ValueError("ts_written must be non-negative")
+    @field_validator("asset_id", "name", "address", "network")
+    @classmethod
+    def _validate_non_empty_string(cls, value: str) -> str:
+        if not value:
+            raise ValueError("string field must be non-empty")
+        return value
 
-    def to_dict(self) -> dict[str, str | float | int]:
-        return asdict(self)
+    def to_dict(self) -> dict[str, str | float | int | bool]:
+        return self.model_dump(mode="python")
 
     def to_json(self) -> str:
         return compact_json(self.to_dict())
 
     def to_event(self, exchange: str) -> dict[str, str | int]:
-        normalized_exchange = require_non_empty(exchange, "exchange").lower()
+        normalized_exchange = exchange.strip().lower()
+        if not normalized_exchange:
+            raise ValueError("exchange must be non-empty")
+
         return {
             "type": "quote_upserted",
             "exchange": normalized_exchange,

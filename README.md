@@ -35,12 +35,14 @@ quote_buy = create_quote(
     bid=60000.0,
     ask=60100.0,
     last=60050.0,
+    withdraw_status=True,
+    deposit_status=True,
     ts_exchange=1710000000000,
 )
 
 quote_sell = quote_from_redis(
     "BTC",
-    '{"name":"Bitcoin","address":"native","network":"bitcoin","bid":60500.0,"ask":60600.0,"last":60550.0,"ts_exchange":1710000000100}',
+    '{"name":"BTCUSDT","address":"native","network":"bitcoin","bid":60500.0,"ask":60600.0,"last":60550.0,"withdraw_status":true,"deposit_status":true,"ts_exchange":1710000000100}',
 )
 
 spread = create_spread(
@@ -51,6 +53,8 @@ spread = create_spread(
 )
 print(spread.to_json())
 ```
+
+`Spread` now contains `name_buy`, `name_sell`, `ts_found`, and `ts_calculated`.
 
 ## Development
 

@@ -2,7 +2,7 @@ import json
 from typing import Any, Mapping
 
 from .schema import Quote
-from .utils import as_float, as_int, now_ms, require_non_empty
+from .utils import as_bool, as_float, as_int, now_ms, require_non_empty
 
 
 def create_quote(
@@ -14,6 +14,8 @@ def create_quote(
     bid: float,
     ask: float,
     last: float,
+    withdraw_status: bool,
+    deposit_status: bool,
     ts_exchange: int,
     ts_written: int | None = None,
 ) -> Quote:
@@ -25,6 +27,8 @@ def create_quote(
         bid=float(bid),
         ask=float(ask),
         last=float(last),
+        withdraw_status=as_bool(withdraw_status, "withdraw_status"),
+        deposit_status=as_bool(deposit_status, "deposit_status"),
         ts_exchange=int(ts_exchange),
         ts_written=ts_written if ts_written is not None else now_ms(),
     )
@@ -44,6 +48,8 @@ def quote_from_payload(payload: str | Mapping[str, Any], *, default_asset_id: st
         bid=as_float(data.get("bid"), "bid"),
         ask=as_float(data.get("ask"), "ask"),
         last=as_float(data.get("last"), "last"),
+        withdraw_status=as_bool(data.get("withdraw_status"), "withdraw_status"),
+        deposit_status=as_bool(data.get("deposit_status"), "deposit_status"),
         ts_exchange=as_int(data.get("ts_exchange"), "ts_exchange"),
         ts_written=as_int(data.get("ts_written"), "ts_written")
         if data.get("ts_written") is not None

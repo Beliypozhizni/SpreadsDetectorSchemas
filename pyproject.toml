@@ -21,7 +21,9 @@ classifiers = [
     "Programming Language :: Python :: 3.13",
     "Topic :: Software Development :: Libraries :: Python Modules",
 ]
-dependencies = []
+dependencies = [
+    "pydantic (>=2.12.5,<3.0.0)"
+]
 
 [tool.setuptools.packages.find]
 where = ["."]

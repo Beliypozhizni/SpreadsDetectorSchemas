@@ -14,10 +14,14 @@ class TestQuotes(unittest.TestCase):
             bid=100.0,
             ask=101.0,
             last=100.5,
+            withdraw_status=True,
+            deposit_status=True,
             ts_exchange=123,
         )
         self.assertGreater(quote.ts_written, 0)
         self.assertEqual(quote.ts_exchange, 123)
+        self.assertTrue(quote.withdraw_status)
+        self.assertTrue(quote.deposit_status)
 
     def test_to_json_and_to_event(self) -> None:
         quote = create_quote(
@@ -28,6 +32,8 @@ class TestQuotes(unittest.TestCase):
             bid=200.0,
             ask=201.0,
             last=200.5,
+            withdraw_status=False,
+            deposit_status=True,
             ts_exchange=456,
             ts_written=789,
         )
@@ -36,6 +42,8 @@ class TestQuotes(unittest.TestCase):
 
         self.assertEqual(payload["asset_id"], "ETH")
         self.assertEqual(payload["ts_written"], 789)
+        self.assertEqual(payload["withdraw_status"], False)
+        self.assertEqual(payload["deposit_status"], True)
         self.assertEqual(event["exchange"], "bybit")
         self.assertEqual(event["asset_id"], "ETH")
 
@@ -48,6 +56,8 @@ class TestQuotes(unittest.TestCase):
                 "bid": 1.23,
                 "ask": 1.24,
                 "last": 1.235,
+                "withdraw_status": True,
+                "deposit_status": False,
                 "ts_exchange": 1,
                 "ts_written": 2,
             }
@@ -59,6 +69,8 @@ class TestQuotes(unittest.TestCase):
         self.assertEqual(quote.bid, 1.23)
         self.assertEqual(quote.ask, 1.24)
         self.assertEqual(quote.last, 1.235)
+        self.assertTrue(quote.withdraw_status)
+        self.assertFalse(quote.deposit_status)
 
     def test_decimal_properties(self) -> None:
         quote = create_quote(
@@ -69,6 +81,8 @@ class TestQuotes(unittest.TestCase):
             bid=1.23,
             ask=1.24,
             last=1.235,
+            withdraw_status=True,
+            deposit_status=True,
             ts_exchange=1,
             ts_written=2,
         )
