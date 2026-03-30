@@ -2,7 +2,7 @@ from quotes.schema import Quote
 from quotes.utils import now_ms
 
 from .schema import Spread
-from .utils import calculate_spread, ensure_quotes_compatible, normalize_exchange
+from .utils import calculate_spread
 
 
 def create_spread(
@@ -14,10 +14,20 @@ def create_spread(
     ts_found: int | None = None,
     ts_calculated: int | None = None,
 ) -> Spread:
-    ensure_quotes_compatible(quote_buy, quote_sell)
+    if quote_buy.asset_id != quote_sell.asset_id:
+        raise ValueError("quote_buy.asset_id must match quote_sell.asset_id")
+    if quote_buy.address != quote_sell.address:
+        raise ValueError("quote_buy.address must match quote_sell.address")
+    if quote_buy.network != quote_sell.network:
+        raise ValueError("quote_buy.network must match quote_sell.network")
 
-    normalized_exchange_buy = normalize_exchange(exchange_buy, "exchange_buy")
-    normalized_exchange_sell = normalize_exchange(exchange_sell, "exchange_sell")
+    normalized_exchange_buy = exchange_buy.strip().lower()
+    normalized_exchange_sell = exchange_sell.strip().lower()
+    if not normalized_exchange_buy:
+        raise ValueError("exchange_buy must be a non-empty string")
+    if not normalized_exchange_sell:
+        raise ValueError("exchange_sell must be a non-empty string")
+
     spread_absolute, spread_percent = calculate_spread(quote_buy.ask, quote_sell.bid)
     resolved_ts_calculated = ts_calculated if ts_calculated is not None else now_ms()
     resolved_ts_found = ts_found if ts_found is not None else resolved_ts_calculated
